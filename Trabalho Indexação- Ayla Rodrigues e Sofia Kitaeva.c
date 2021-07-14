@@ -11,15 +11,12 @@ typedef struct Palavra
 	char letras[50];
 	int qntOcorencias;
 	int *linhas;
-	struct palavra *prox, *ant;
+	
 }Palavra;
 
 Palavra *CriarLista()
 {
-	struct Palavra *sentinela = (struct Palavra*) malloc(sizeof(struct Palavra));
-	sentinela->prox=sentinela;
-	sentinela->ant=sentinela;
-	return sentinela;
+	return NULL:
 };
 
 Palavra *CriarElemento(char letras[])
