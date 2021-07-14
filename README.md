@@ -1,2 +1,2 @@
-# Indexa-o
+# Indexacao
 Trabalho de Indexação- Programação com arquivos
