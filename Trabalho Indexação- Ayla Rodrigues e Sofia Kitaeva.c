@@ -155,7 +155,7 @@ int main(){
 		Sleep(5000);
 		system("cls");
 	}
-	printf("O usu?io saiu!\n");
+	printf("O usuáio saiu!\n");
 
 	return 0;
 }
