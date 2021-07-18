@@ -111,7 +111,7 @@ void LerReceberArquivo(struct Palavra *Lista)
     {
         while(fread(&Lista, sizeof(Palavra),1, arq)==1)
         {
-            if((strcmp(letras==Lista.letras)==0))
+            if((strcmp(letras,Lista.letras)!=0))
             {
                 InserirElemento(Lista, letras);
                 total++;
