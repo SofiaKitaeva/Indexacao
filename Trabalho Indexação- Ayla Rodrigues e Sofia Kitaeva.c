@@ -56,6 +56,7 @@ Palavra *Buscar(struct Palavra *Lista, char plv[])
 void InserirElemento(struct Palavra *Lista, char letras[])
 {
     struct Palavra *aux = Buscar(Lista, letras);
+
     if(aux!=NULL)
         aux->qntOcorencias++;
     else{
@@ -102,17 +103,22 @@ void LerReceberArquivo(struct Palavra *Lista)
     scanf("%s", arv);
     arq=fopen(arv,"r");
 
-    if (arq!=NULL)
-    {
+    arq=fopen(arv,"r");
 
-        while(feof(arq)==0)
+    if (arq==NULL)
+    {
+        printf("Problemas na leitura do arquivo\n");
+    }
+    else
+    {
+        while(fread(&Lista, sizeof(Palavra),1, arq)==1)
         {
-            fscanf(arq, "%s", letras);
+            
             InserirElemento(Lista, letras);
             total++;
+            
         }
     }
-    
     fclose(arq);
 }
 
