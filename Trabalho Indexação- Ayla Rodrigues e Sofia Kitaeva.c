@@ -124,20 +124,6 @@ void LerReceberArquivo(struct Palavra *Lista)
 
 }
 
-void listar(struct Palavra *Lista)
-{
-	struct Palavra *aux = Lista->prox;
-	if (Lista==NULL)
-	{
-		return;
-	}
-	do
-	{
-		printf("%s, %d\n", aux->letras, aux-> qntOcorencias);
-		aux=aux->prox;
-	}while(aux!=Lista);
-};
-
 Palavra *Destruir(Palavra *Lista){
 	Palavra *aux = Lista;
 	Lista->ant->prox=NULL;
@@ -207,7 +193,7 @@ int main(){
 		{
 			LerReceberArquivo(Lista);
 			EscreverDat(Lista);
-			listar(Lista);
+	
 		}
 
 		else if(opcao==2)
