@@ -100,27 +100,20 @@ void LerReceberArquivo(struct Palavra *Lista)
     FILE *arq;
     printf("Qual o nome do arquivo?\n");
     scanf("%s", arv);
-
     arq=fopen(arv,"r");
 
-    if (arq==NULL)
+    if (arq!=NULL)
     {
-        printf("Problemas na leitura do arquivo\n");
-    }
-    else
-    {
-        while(fread(&Lista, sizeof(Palavra),1, arq)==1)
+        while(fread(&palavra, sizeof(Palavra),1, arq)==1)
         {
-            if((strcmp(letras,Lista->letras)!=0))
-            {
-                InserirElemento(Lista, letras);
-                total++;
-            }
-
+            InserirElemento(Lista, letras);
+            total++;
         }
-        
-    }fclose(arq);
+    }
+    
+    fclose(arq);
 }
+
 
 Palavra *Destruir(Palavra *Lista){
     Palavra *aux = Lista;
