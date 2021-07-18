@@ -103,7 +103,7 @@ void LerReceberArquivo(struct Palavra *Lista)
 
     arq=fopen(arv,"r");
 
-    if (arquivo==NULL)
+    if (arq==NULL)
     {
         printf("Problemas na leitura do arquivo\n");
     }
@@ -111,7 +111,7 @@ void LerReceberArquivo(struct Palavra *Lista)
     {
         while(fread(&Lista, sizeof(Palavra),1, arq)==1)
         {
-            if((strcmp(letras,Lista.letras)!=0))
+            if((strcmp(letras,Lista->letras)!=0))
             {
                 InserirElemento(Lista, letras);
                 total++;
@@ -193,7 +193,7 @@ int main(){
     }
     
     
-    printf("O usuário saiu!\n");
+    printf("O usuÃ¡rio saiu!\n");
 
     return 0;
 }
