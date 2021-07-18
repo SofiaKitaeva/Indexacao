@@ -81,7 +81,7 @@ void InserirElemento(struct Palavra *Lista, char letras[])
                     aux=aux->prox;
                 }
             }
-        
+
             if(novo->prox==NULL){
                 novo->prox=Lista;
                 novo->ant=Lista->ant;
@@ -103,13 +103,22 @@ void LerReceberArquivo(struct Palavra *Lista)
 
     arq=fopen(arv,"r");
 
-    if (arq!=NULL)
+    if (arquivo==NULL)
+    {
+        printf("Problemas na leitura do arquivo\n");
+    }
+    else
     {
         while(fread(&Lista, sizeof(Palavra),1, arq)==1)
         {
-            InserirElemento(Lista, letras);
-            total++;
+            if((strcmp(letras==Lista.letras)==0))
+            {
+                InserirElemento(Lista, letras);
+                total++;
+            }
+
         }
+        
     }fclose(arq);
 }
 
@@ -138,6 +147,7 @@ void EscreverDat(Palavra *Lista){
 }
 
 Palavra *BuscaIndex(Palavra *Lista, char plv[]){
+
     int totalplv;
     
     Lista=Destruir(Lista);
@@ -159,7 +169,7 @@ int main(){
 
     while (opcao!=3)
     {
-        printf("O que deseja fazer?\n1.Criar um indice para um arquivo de texto.\n2.Utilizar um indice existente para realizar busca por palavras.\n3.Encerrar programa.\n\n>");
+        printf("O que deseja fazer?\n\n1.Criar um indice para um arquivo de texto.\n2.Utilizar um indice existente para realizar busca por palavras.\n3.Encerrar programa.\n\n>");
         scanf("%d", &opcao);
         printf("\n");
 
