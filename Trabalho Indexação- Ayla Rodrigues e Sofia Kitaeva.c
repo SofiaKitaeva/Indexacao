@@ -95,43 +95,22 @@ void InserirElemento(struct Palavra *Lista, char letras[])
 void LerReceberArquivo(struct Palavra *Lista)
 {
 	char arv[50];
-	char letras[100];
-	
-	FILE *arq;
-	printf("Qual o nome do arquivo?\n");
-	scanf("%s", arv);
-	arq=fopen(arv,"r");
+    char letras[100];
+    
+    FILE *arq;
+    printf("Qual o nome do arquivo?\n");
+    scanf("%s", arv);
+    arq=fopen(arv,"r");
 
-	if (arq!=NULL)
-	{
-
-		while(feof(arq)==0)
-		{
-			fscanf(arq, "%s", letras);
-			InserirElemento(Lista, letras);
-			for(int i=0; i<strlen(letras)+2; i++)
-				if(letras[i]==10)
-					linha++;
-			total++;
-		}
-	}
-	
-	fclose(arq);
+    if (arq!=NULL)
+    {
+        while(fread(&Lista, sizeof(Palavra),1, arq)==1)
+        {
+            InserirElemento(Lista, letras);
+            total++;
+        }
+    }fclose(arq);
 }
-
-void listar(struct Palavra *Lista)
-{
-	struct Palavra *aux = Lista->prox;
-	if (Lista==NULL)
-	{
-		return;
-	}
-	do
-	{
-		printf("%s, %d\n", aux->letras, aux-> qntOcorencias);
-		aux=aux->prox;
-	}while(aux!=Lista);
-};
 
 Palavra *Destruir(Palavra *Lista){
 	Palavra *aux = Lista;
@@ -145,16 +124,16 @@ Palavra *Destruir(Palavra *Lista){
 }
 
 void EscreverDat(Palavra *Lista){
-	FILE *dat;
-	Palavra *aux = Lista->prox;
-	dat = fopen("indice.dat", "wb");
-	fwrite(&total, sizeof(int),1,dat);
-	while(aux!=Lista){
-		int stringT=strlen(aux->letras)+1;
-		fwrite(&stringT, sizeof(int),1,dat);
-		fwrite(&aux,sizeof(Palavra),1,dat);
-		aux=aux->prox;
-	}
+
+    FILE *dat;
+    Palavra *aux = Lista->prox;
+    dat = fopen("indice.dat", "wb");
+    
+    while(aux!=Lista)
+    {
+        fwrite(&aux, sizeof(Palavra),1,dat);
+        aux=aux->prox;
+    }
 }
 
 Palavra *BuscaIndex(Palavra *Lista, char plv[]){
