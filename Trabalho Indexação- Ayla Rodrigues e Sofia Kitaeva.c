@@ -97,29 +97,35 @@ void InserirElemento(struct Palavra *Lista, char letras[])
 
 void LerReceberArquivo(struct Palavra *Lista)
 {
-	char arv[50];
-	char letras[100];
-	FILE *arq;
-	printf("Qual o nome do arquivo?\n");
-	scanf("%s", arv);
-	arq=fopen(arv,"r");
+    char arv[50];
+    char letras[100];
+    
+    FILE *arq;
+    printf("Qual o nome do arquivo?\n");
+    scanf("%s", arv);
+    arq=fopen(arv,"r");
 
-	if (arq!=NULL){
+    arq=fopen(arv,"r");
 
-		while(feof(arq)==0)
-		{
-			fscanf(arq, "%s", letras);
-			InserirElemento(Lista, letras);
-			printf("%s", letras);
-			for(int i=0; i<strlen(letras)+1; i++){
-				if(letras[i]=='\n')
-					linha++;
-			}
-			total++;
-		}
-	}
-	
-	fclose(arq);
+    if (arq==NULL)
+    {
+        printf("Problemas na leitura do arquivo\n");
+    }
+    else
+    {
+        while(fread(&Lista, sizeof(Palavra),1, arq)==1)
+        {
+            
+            InserirElemento(Lista, letras);
+            printf("%s", letras);
+			      for(int i=0; i<strlen(letras)+1; i++){
+				    if(letras[i]=='\n')
+					  linha++;
+            total++;
+        }
+    }
+    fclose(arq);
+
 }
 
 void listar(struct Palavra *Lista)
