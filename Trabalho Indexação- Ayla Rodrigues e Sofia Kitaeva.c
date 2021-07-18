@@ -113,14 +113,10 @@ void LerReceberArquivo(struct Palavra *Lista)
     }
     else
     {
-        while(fread(&Lista, sizeof(Palavra),1, arq)==1)
+        while(!feof(arq))
         {
-            
+            fscanf(arq, "%s", letras);
             InserirElemento(Lista, letras);
-            printf("%s", letras);
-			      for(int i=0; i<strlen(letras)+1; i++){
-				    if(letras[i]=='\n')
-					  linha++;
             total++;
         }
     }
