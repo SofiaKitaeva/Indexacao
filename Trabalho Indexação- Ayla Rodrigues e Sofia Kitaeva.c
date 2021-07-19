@@ -10,8 +10,7 @@
 int total=0;
 int linha=1;
 
-typedef struct Palavra
-{
+typedef struct Palavra{
 	char letras[50];
 	int qntOcorencias;
 	int *linhas;
@@ -19,8 +18,7 @@ typedef struct Palavra
 	
 }Palavra;
 
-Palavra *CriarLista()
-{
+Palavra *CriarLista(){
 	Palavra *sentinela = (Palavra*) malloc(sizeof(Palavra));
 	sentinela->prox = sentinela;
 	sentinela->ant = sentinela;
@@ -58,8 +56,8 @@ void InserirElemento(struct Palavra *Lista, char letras[])
 	struct Palavra *aux = Buscar(Lista, letras);
 	if(aux!=NULL){
 		aux->qntOcorencias++;
-		aux->linhas = (int*) realloc(aux->linhas, aux->qntOcorencias*sizeof(int));
-		aux->linhas[aux->qntOcorencias] = linha;
+		//aux->linhas = (int*) realloc(aux->linhas, aux->qntOcorencias*sizeof(int));
+		//aux->linhas[aux->qntOcorencias] = linha;
 	}
 	else{
 		struct Palavra *novo = CriarElemento(letras);
@@ -104,8 +102,7 @@ void LerReceberArquivo(struct Palavra *Lista)
     printf("Qual o nome do arquivo?\n");
     scanf("%s", arv);
     arq=fopen(arv,"r");
-
-    arq=fopen(arv,"r");
+;
 
     if (arq==NULL)
     {
@@ -124,12 +121,25 @@ void LerReceberArquivo(struct Palavra *Lista)
 
 }
 
+void listar(struct Palavra *Lista)
+{
+	struct Palavra *aux = Lista->prox;
+	if (Lista==NULL)
+	{
+		return;
+	}
+	do
+	{
+		printf("%s, %d\n", aux->letras, aux-> qntOcorencias);
+		aux=aux->prox;
+	}while(aux!=Lista);
+};
+
 Palavra *Destruir(Palavra *Lista){
 	Palavra *aux = Lista;
 	Lista->ant->prox=NULL;
 	while(aux!=NULL){
 		Lista=Lista->prox;
-		free(aux->linhas);
 		free(aux);
 		aux=Lista;
 	}
@@ -139,41 +149,40 @@ Palavra *Destruir(Palavra *Lista){
 void EscreverDat(Palavra *Lista){
 	FILE *dat;
 	Palavra *aux = Lista->prox;
-	dat = fopen("indice.dat", "wb");
+	dat = fopen("indice.dat", "ab");
 	fwrite(&total, sizeof(int),1,dat);
 	while(aux!=Lista){
-		Palavra info=*aux;
 		int stringT=strlen(aux->letras)+1;
 		fwrite(&stringT, sizeof(int),1,dat);
-		fwrite(&info,sizeof(Palavra),1,dat);
+		fwrite(&aux,sizeof(Palavra),1,dat);
 		aux=aux->prox;
 	}
 }
 
 Palavra *BuscaIndex(Palavra *Lista){
-	int totalplv;
+	int totalplv, tam;
 	char plv[50];
 	Palavra* info;
-	
-	printf("Qual palavra deseja procurar?\n");
-	scanf("%s", plv);
 	
 	Lista=Destruir(Lista);
 	FILE* arq;
 	arq=fopen("indice.dat", "rb");
 	fread(&totalplv, sizeof(int),1,arq);
+	printf("%d\n", totalplv);
 	while(feof(arq)==0){
+		fread(&tam, sizeof(int),1,arq);
 		fread(&info, sizeof(Palavra),1,arq);
-		printf("Total de caracteres: %d\n", strlen(info->letras));
-		printf("Palavra: %s\n", info->letras);
+		printf("Total de caracteres: %d\n", tam);
+		printf("Palavra: %s\n", info);
 		printf("Quantidade de ocorrências: %d\n", info->qntOcorencias);
 		printf("Linhas em que aparece: ");
 		for(int i=info->qntOcorencias; i=0; i++)
 			printf("%d ", info->linhas[i]);
 	}
+		printf("Qual palavra deseja procurar?\n");
+		scanf("%s", plv);
 	
 	fclose(arq);
-	
 }
 
 int main(){
@@ -189,16 +198,13 @@ int main(){
 		scanf("%d", &opcao);
 		printf("\n");
 
-		if (opcao==1)
-		{
+		if (opcao==1){
 			LerReceberArquivo(Lista);
 			EscreverDat(Lista);
-	
+			listar(Lista);
 		}
 
-		else if(opcao==2)
-		{
-		
+		else if(opcao==2){
 			BuscaIndex(Lista);
 		}
 
