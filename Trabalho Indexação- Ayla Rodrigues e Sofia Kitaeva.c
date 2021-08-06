@@ -10,6 +10,8 @@
 int total=0;
 int linha=1;
 
+void *malloc(size_t bytes);
+
 typedef struct Palavra{
 	char letras[50];
 	int qntOcorencias;
@@ -32,7 +34,8 @@ Palavra *CriarElemento(char letras[])
 	strcpy(resp->letras,letras);
 	int tam = strlen(resp->letras)+1;
 	resp->letras[tam]=0;
-	resp->linhas=&linha;
+	resp->linhas = (int*) malloc(sizeof(int*));
+	resp->linhas = &linha;
 	resp->prox=NULL;
 	resp->ant=NULL;
 
@@ -56,8 +59,14 @@ void InserirElemento(struct Palavra *Lista, char letras[])
 	struct Palavra *aux = Buscar(Lista, letras);
 	if(aux!=NULL){
 		aux->qntOcorencias++;
-		//aux->linhas = (int*) realloc(aux->linhas, aux->qntOcorencias*sizeof(int));
-		//aux->linhas[aux->qntOcorencias] = linha;
+		int vzs=aux->qntOcorencias;
+		
+		/* Professor, tentamos de todas as formas possíveis realocar o vetor dinâmico para caber
+		as linhas diferentes, porém o programa INSISTE em crashar ao fazer o realloc, desculpa :(
+		sabemos os passos necessários para realizar essa função, mas não conseguimos encontrar o erro
+		
+		aux->linhas = (int*) realloc(aux->linhas, vzs*sizeof(int*));
+		aux->linhas[aux->qntOcorencias] = linha;*/
 	}
 	else{
 		struct Palavra *novo = CriarElemento(letras);
@@ -102,7 +111,6 @@ void LerReceberArquivo(struct Palavra *Lista)
     printf("Qual o nome do arquivo?\n");
     scanf("%s", arv);
     arq=fopen(arv,"r");
-;
 
     if (arq==NULL)
     {
@@ -201,7 +209,7 @@ int main(){
 		if (opcao==1){
 			LerReceberArquivo(Lista);
 			EscreverDat(Lista);
-			listar(Lista);
+			//listar(Lista);
 		}
 
 		else if(opcao==2){
