@@ -10,6 +10,9 @@
 int total=0;
 int linha=1;
 
+
+void *malloc(size_t bytes);
+
 typedef struct ocorrencias{
     int arquivo;
     int qtdOcorrencias;
@@ -17,6 +20,7 @@ typedef struct ocorrencias{
     struct Ocorrencia *prox;
     
 }Ocorrencia;
+
 
 typedef struct Palavra{
     char letras[50];
@@ -61,6 +65,7 @@ Palavra *CriarElemento(char letras[])
     resp->ant=NULL;
 
     return resp;
+
 };
 
 Palavra *Buscar(struct Palavra *Lista, char plv[])
@@ -121,6 +126,7 @@ void InserirElemento(struct Palavra *Lista, char letras[])
             }
         }
     }
+
 }
 
 void LerReceberArquivo(struct Palavra *Lista)
@@ -131,6 +137,9 @@ void LerReceberArquivo(struct Palavra *Lista)
     FILE *arq;
     printf("Qual o nome do arquivo?\n");
     scanf("%s", arv);
+
+    arq=fopen(arv,"r");
+
 
     if (arv!=arquivos.nomeArq)//se o arquivo fornecido nao tiver sido lido ainda
     {
@@ -254,9 +263,16 @@ int main(){
         else if(opcao==3)
         {
 
+		if (opcao==1){
+			LerReceberArquivo(Lista);
+			EscreverDat(Lista);
+			//listar(Lista);
+		}
+
         }
         else if(opcao==4)
         {
+
 
         }
 
