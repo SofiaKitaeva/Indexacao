@@ -11,8 +11,6 @@ int total=0;
 int linha=1;
 
 
-void *malloc(size_t bytes);
-
 typedef struct ocorrencias{
     int arquivo;
     int qtdOcorrencias;
@@ -138,13 +136,11 @@ void LerReceberArquivo(struct Palavra *Lista)
     printf("Qual o nome do arquivo?\n");
     scanf("%s", arv);
 
-    arq=fopen(arv,"r");
-
-
     if (arv!=arquivos.nomeArq)//se o arquivo fornecido nao tiver sido lido ainda
     {
-        //inserir o nome do arquivo.txt no final da lista de arquivos
         arq=fopen(arv,"r");
+        //inserir o nome do arquivo.txt no final da lista de arquivos
+        InserirElemento(,arv);//terminar
         if (arq==NULL)
         {
             printf("Problemas na leitura do arquivo\n");
@@ -156,12 +152,13 @@ void LerReceberArquivo(struct Palavra *Lista)
                 fscanf(arq, "%s", letras);
                 if (strcmp(letras,Palavras.letras)!=0)
                 {
-                    InserirElemento(Lista, letras);
+                    InserirElemento(Lista, letras);//colocar na lista a posicao do arquivo, linha.
                     indices.qtdPalavras++;
                 }
                 else
                 {
-                    //inserir na lista de occorrencias, o nome do arq, aumentar a qtd de ococrrencias, e em qual linha
+                    ocorrencias.arquivo = ;//tem que receber a posicao do arquivo na lista
+                    //inserir na lista de ocorrencias, a posicao do arq, aumentar a qtd de ocorrencias, e em qual linha
                 }
                 
             } 
@@ -222,6 +219,9 @@ Palavra *BuscaIndex(Palavra *Lista){
     arq=fopen("indice.dat", "rb");
     fread(&totalplv, sizeof(int),1,arq);
     printf("%d\n", totalplv);
+
+    printf("Qual palavra deseja procurar?\n");
+    scanf("%s", plv);
     
     while(feof(arq)==0){
         fread(&tam, sizeof(int),1,arq);
@@ -233,8 +233,7 @@ Palavra *BuscaIndex(Palavra *Lista){
         for(int i=info->qntOcorencias; i=0; i++)
             printf("%d ", info->linhas[i]);
     }
-    printf("Qual palavra deseja procurar?\n");
-    scanf("%s", plv);
+   
     
     fclose(arq);
 }
@@ -253,33 +252,35 @@ int main(){
         printf("\n");
 
         if (opcao==1){
+            //processar arquivo
             LerReceberArquivo(Lista);
             EscreverDat(Lista);
         }
 
         else if(opcao==2){
+            //salvar o indice atual
             BuscaIndex(Lista);
         }
         else if(opcao==3)
         {
-
-		if (opcao==1){
-			LerReceberArquivo(Lista);
-			EscreverDat(Lista);
-			//listar(Lista);
-		}
+            //ler um arquivo de indice
+            //liberar a memoria do indice atual
+            //ler o arquivo indice.dat e reconstruir a lista de palavras encontradas e suas ocorrencias
 
         }
         else if(opcao==4)
         {
-
-
+            //mostrar informacoes do indice
+            //mostrar os nomes de arquivo que compoem esse indice
+            //as palavras em odrem alfabetica, cada palavras, quantidadde de vezes que apareceu nesse arquivo e os numeros das linhas
         }
 
         system("pause");
         system("cls");
     }
     
+    //liberar a memori dinamicamente alocada
+    //nao remover o arquivo indice.dat
     Lista=Destruir(Lista);
     printf("O usuário saiu!\n");
 
