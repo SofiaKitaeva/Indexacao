@@ -1,0 +1,328 @@
+// Ayla Rodrigues e Sofia Kitaeva
+// Trabalho Indexação pt.2 - Programacao com arquivos
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <locale.h>
+#include <string.h>
+#include <malloc.h>
+
+int total=0;
+int linha=1;
+int arquivo=0;
+
+typedef struct ocorrencias{
+    int arquivo;
+    int qtdOcorrencias;
+    int linhas[50];
+    struct Ocorrencia *prox;
+    
+}Ocorrencia;
+
+typedef struct Palavra{
+    char letras[50];
+    int qntOcorencias;
+    struct Ocorrencia *ocorrencias;
+    struct Palavra *prox;
+    
+}Palavra;
+
+typedef struct arquivos{
+  char nomeArq[50];
+  struct Arquivo *prox;
+
+}Arquivo;
+
+typedef struct indices{
+  int qtdArquivos;
+  struct Arquivo *arquivos;
+  int qtdPalavras;
+  struct Palavra *Palavras;
+
+}Indice;
+
+Palavra *CriarElemento(char letras[]){
+    struct Palavra *resp = (struct Palavra*) malloc(sizeof(struct Palavra));
+    resp->qntOcorencias=1;
+    strcpy(resp->letras,letras);
+    int tam = strlen(resp->letras);
+    resp->letras[tam]='\0';
+    Ocorrencia* nova = (Ocorrencia*) malloc(sizeof(Ocorrencia*));
+    nova->arquivo=arquivo;
+	nova->qtdOcorrencias=1;
+    nova->linhas[0] = linha;
+    nova->prox=NULL;
+    resp->ocorrencias=nova;
+    resp->prox=NULL;
+
+    return resp;
+
+};
+
+Palavra *Buscar(Indice* ind, char plv[]){
+    Palavra* aux = ind->Palavras;
+    
+    while(aux!=NULL && strcmp(aux->letras, plv)!=0)
+        aux = aux->prox;
+    
+	return  aux;
+}
+
+Ocorrencia* CriaOcorrencia(){
+	Ocorrencia* novo = (Ocorrencia*) malloc(sizeof(Ocorrencia*));
+	novo->arquivo=arquivo;
+	novo->linhas[0] = linha;
+	novo->qtdOcorrencias=1;
+	novo->prox=NULL;
+}
+
+void InserirElemento(Indice* ind, char letras[]){
+    Palavra* aux = Buscar(ind, letras);
+    if(aux!=NULL){ //se a palavra já existir
+    	int flag = 0;
+		Ocorrencia* auxO = aux->ocorrencias;	
+		while(auxO!=NULL && flag!=1){
+			if(auxO->arquivo==arquivo){
+				flag=1;
+				break;	
+			}
+			auxO=auxO->prox;
+		}
+		if(flag==1){
+			auxO->qtdOcorrencias++;
+			//incluir número da nova linha
+		}
+		else{
+			Ocorrencia* novo = CriaOcorrencia();
+			auxO->prox=novo;	
+		}
+    }
+    else{//se a palavra não existir
+        struct Palavra *novo = CriarElemento(letras);
+        if(ind->Palavras==NULL){//se lista de palavras estiver vazia
+            ind->Palavras=novo;
+        }
+        else{
+        	aux=ind->Palavras;
+        	Palavra* aux2=aux;
+			while(aux!=NULL){
+                if(strcmp(novo->letras,aux->letras)<0 && aux==ind->Palavras){
+                    novo->prox=aux;
+                    ind->Palavras=novo;
+                }
+                else if(strcmp(novo->letras,aux->letras)<0){
+                	novo->prox=aux;
+                	aux2->prox=novo;
+				}
+                else{
+                	aux2=aux;
+                    aux=aux->prox;
+                }
+            }
+            if(aux==NULL){
+                aux->prox=novo;
+            }
+        }
+    }
+
+}
+
+Arquivo* BuscarArq(Indice* ind, char arq[50]){
+	if(ind->arquivos==NULL)
+		return NULL;
+	else{
+		Arquivo* aux = ind->arquivos;
+		while(aux->prox!=NULL && strcmp(aux->nomeArq, arq)!=0)
+        	aux = aux->prox;
+        	
+		return aux;
+	}
+}
+
+void InserirArq(Indice* ind, char arv[50]){
+	if(ind->arquivos==NULL){
+		Arquivo* novo;
+		strcpy(novo->nomeArq,arv);
+		novo->prox=NULL;
+		ind->arquivos=novo;
+	}
+	else{
+		Arquivo* aux=ind->arquivos;
+		while(aux->prox!=NULL)
+			aux=aux->prox;
+		Arquivo* novo;
+		novo->prox=NULL;
+		strcpy(novo->nomeArq,arv);
+		aux->prox=novo;
+	}
+}
+
+void LerReceberArquivo(Indice* ind){
+    char arv[50];
+    char letras[100];
+    
+    FILE *arq;
+    printf("Qual o nome do arquivo?\n");
+    scanf("%s", arv);
+
+	Arquivo* aux = BuscarArq(ind,arv); //buscar nome do arquivo
+    if (aux==NULL)//se o arquivo fornecido nao tiver sido lido ainda
+    {
+        arq=fopen(arv,"r");
+        if (arq==NULL)
+            printf("Problemas na leitura do arquivo\n");
+        else{
+            //inserir o nome do arquivo.txt no final da lista de arquivo
+            InserirArq(ind,arv);
+            arquivo++;
+			while(!feof(arq)){
+                fscanf(arq, "%s", letras);
+                if(letras[strlen(letras)+1]=='\n');
+                	linha++;
+                InserirElemento(ind, letras);//colocar na lista a posicao do arquivo, linha
+            } 
+        }
+		fclose(arq); 
+    }
+    else
+        printf("O arquivo já foi lido\n");
+
+}
+
+/*void listar(Palavra *Lista){
+    struct Palavra *aux = Lista->prox;
+    if (Lista==NULL){
+        return;
+    }
+    do{
+        printf("%s, %d\n", aux->letras, aux-> qntOcorencias);
+        aux=aux->prox;
+    }while(aux!=Lista);
+}*/
+
+/*Palavra *Destruir(Palavra *Lista){
+    Palavra *aux = Lista;
+    while(aux!=NULL){
+        Lista=Lista->prox;
+        free(aux);
+        aux=Lista;
+    }
+    return NULL;
+}*/
+
+void EscreverDat(Indice *ind){
+    FILE *dat;
+    dat = fopen("indice.dat", "wb");
+    fwrite(&arquivo, sizeof(int),1,dat);
+    Arquivo* auxA= ind->arquivos;
+    while(auxA!=NULL){
+        int arqNomeT=strlen(auxA->nomeArq)+1;
+        fwrite(&arqNomeT, sizeof(int),1,dat);
+        fwrite(&auxA->nomeArq,sizeof(char)*arqNomeT-1,1,dat);
+        fwrite("\0",sizeof(char),1,dat);
+        auxA=auxA->prox;
+    }
+    
+	fwrite(&total, sizeof(int),1,dat);
+    Palavra* auxP = ind->Palavras;
+    while(auxP!=NULL){
+    	int tamPlv=strlen(auxP->letras)+1;
+    	fwrite(&tamPlv, sizeof(int),1,dat);
+    	fwrite(&auxP->letras,sizeof(char)*tamPlv-1,1,dat);
+    	fwrite("\0",sizeof(char),1,dat);
+    	Ocorrencia* auxO = auxP->ocorrencias;
+    	for(int i=0; i<auxP->qntOcorencias;i++){
+    			fwrite(&auxO->arquivo,sizeof(int),1,dat);
+    			fwrite(&auxO->qtdOcorrencias,sizeof(int),1,dat);
+    			for(int i=0;i,auxO->qtdOcorrencias;i++)
+    				fwrite(&auxO->linhas[i],sizeof(int),1,dat);
+		}
+	}
+	fclose(dat);
+}
+
+/*Palavra *BuscaIndex(Palavra *Lista){
+    int totalplv, tam;
+    char plv[50];
+    Palavra* info;
+    
+    Lista=Destruir(Lista);
+    FILE* arq;
+    arq=fopen("indice.dat", "rb");
+    fread(&totalplv, sizeof(int),1,arq);
+    printf("%d\n", totalplv);
+
+    printf("Qual palavra deseja procurar?\n");
+    scanf("%s", plv);
+    
+    while(feof(arq)==0){
+        fread(&tam, sizeof(int),1,arq);
+        fread(&info, sizeof(Palavra),1,arq);
+        printf("Total de caracteres: %d\n", tam);
+        printf("Palavra: %s\n", info);
+        printf("Quantidade de ocorrências: %d\n", info->qntOcorencias);
+        printf("Linhas em que aparece: ");
+        for(int i=info->qntOcorencias; i=0; i++)
+            printf("%d ", info->linhas[i]);
+    }
+   
+    
+    fclose(arq);
+}*/
+
+Indice* CriaIndice(){
+	Indice* ind = (Indice*) malloc(sizeof(Indice*));
+	ind->arquivos=NULL;
+	ind->Palavras=NULL;
+	ind->qtdArquivos=0;
+	ind->qtdPalavras=0;
+	
+	return ind;
+}
+
+int main(){
+
+    setlocale(LC_ALL, "");
+
+    int opcao =0;
+    Indice* ind = CriaIndice();
+
+    while (opcao!=5){
+        printf("O que deseja fazer?\n1.Processar novo arquivo.\n2.Salvar o indice atual.\n3.Ler um arquvivo de indice\n4.Mostrar informações do indice\n5.Encerrar programa.\n>>");
+        scanf("%d", &opcao);
+        printf("\n");
+
+        if (opcao==1){
+            //processar arquivo
+            LerReceberArquivo(ind);
+        }
+        else if(opcao==2){
+            //salvar o indice atual
+            /*EscreverDat(Lista);
+            BuscaIndex(Lista);*/
+        }
+        else if(opcao==3)
+        {
+            //ler um arquivo de indice
+            //liberar a memoria do indice atual
+            //ler o arquivo indice.dat e reconstruir a lista de palavras encontradas e suas ocorrencias
+
+        }
+        else if(opcao==4)
+        {
+            //mostrar informacoes do indice
+            //mostrar os nomes de arquivo que compoem esse indice
+            //as palavras em odrem alfabetica, cada palavras, quantidadde de vezes que apareceu nesse arquivo e os numeros das linhas
+        }
+
+        system("pause");
+        system("cls");
+    }
+    
+    //liberar a memori dinamicamente alocada
+    //nao remover o arquivo indice.dat
+    //Lista=Destruir(Lista);
+    printf("O usuário saiu!\n");
+
+    return 0;
+}
