@@ -57,7 +57,7 @@ Palavra *CriarElemento(char letras[]){
 
     return resp;
 
-};
+}
 
 Palavra *Buscar(Indice* ind, char plv[]){
     Palavra* aux = ind->Palavras;
@@ -65,7 +65,7 @@ Palavra *Buscar(Indice* ind, char plv[]){
     while(aux!=NULL && strcmp(aux->letras, plv)!=0)
         aux = aux->prox;
     
-	return  aux;
+	return aux;
 }
 
 Ocorrencia* CriaOcorrencia(){
@@ -74,11 +74,13 @@ Ocorrencia* CriaOcorrencia(){
 	novo->linhas[0] = linha;
 	novo->qtdOcorrencias=1;
 	novo->prox=NULL;
+	
+	return novo;
 }
 
 void InserirElemento(Indice* ind, char letras[]){
     Palavra* aux = Buscar(ind, letras);
-    if(aux!=NULL){ //se a palavra já existir
+	if(aux!=NULL){ //se a palavra já existir
     	int flag = 0;
 		Ocorrencia* auxO = aux->ocorrencias;	
 		while(auxO!=NULL && flag!=1){
@@ -89,17 +91,21 @@ void InserirElemento(Indice* ind, char letras[]){
 			auxO=auxO->prox;
 		}
 		if(flag==1){
+			auxO->linhas[auxO->qtdOcorrencias]=linha;
 			auxO->qtdOcorrencias++;
 			//incluir número da nova linha
 		}
 		else{
+			auxO = aux->ocorrencias;
+			while(auxO->prox!=NULL)
+				auxO=auxO->prox;
 			Ocorrencia* novo = CriaOcorrencia();
-			auxO->prox=novo;
+			auxO->prox=novo;	
 		}
     }
     else{//se a palavra não existir
         struct Palavra *novo = CriarElemento(letras);
-        if(ind->Palavras==NULL){//se lista de palavras estiver vazia
+		if(ind->Palavras==NULL){//se lista de palavras estiver vazia
             ind->Palavras=novo;
         }
         else{
@@ -126,7 +132,7 @@ Arquivo* BuscarArq(Indice* ind, char arq[]){
 		return NULL;
 	else{
 		Arquivo* aux = ind->arquivos;
-		while(aux->prox!=NULL && strcmp(aux->nomeArq, arq)!=0)
+		while(aux!=NULL && strcmp(aux->nomeArq, arq)!=0)
         	aux = aux->prox;
         	
 		return aux;
@@ -160,7 +166,7 @@ void LerReceberArquivo(Indice* ind){
     scanf("%s", arv);
 
 	Arquivo* aux = BuscarArq(ind,arv); //buscar nome do arquivo
-    if (aux==NULL)//se o arquivo fornecido nao tiver sido lido ainda
+	if (aux==NULL)//se o arquivo fornecido nao tiver sido lido ainda
     {
         arq=fopen(arv,"r");
         if (arq==NULL)
@@ -170,12 +176,9 @@ void LerReceberArquivo(Indice* ind){
             InserirArq(ind,arv);
             arquivo++;
 			while(!feof(arq)){
-				printf("T1\n");
                 fscanf(arq, "%s", letras);
-                printf("T2\n");
                 InserirElemento(ind, letras);//colocar na lista a posicao do arquivo, linha
-                printf("T4\n");
-            } 
+			}
         }
 		fclose(arq); 
     }
@@ -199,7 +202,6 @@ void Listar(Indice* ind){
     printf("\n\tPALAVRAS:\n-----------------------\n");
 	do{
         printf("\t%s \n", auxP->letras);
-        auxP=auxP->prox;
         Ocorrencia* auxO=auxP->ocorrencias;
 		while(auxO!=NULL){
         	printf("Arquivo: %d\n", auxO->arquivo);
@@ -210,16 +212,17 @@ void Listar(Indice* ind){
         	printf("\n");
         	auxO=auxO->prox;
 		}
+		auxP=auxP->prox;
 		printf("-----------------------\n");
-    }while(auxA!=NULL);
+    }while(auxP!=NULL);
 }
 
 void EscreverDat(Indice *ind){
     FILE *dat;
     dat = fopen("indice.dat", "wb");
     fwrite(&arquivo, sizeof(int),1,dat);
-    Arquivo* auxA= ind->arquivos;
-    while(auxA!=NULL){
+	Arquivo* auxA= ind->arquivos;
+	while(auxA!=NULL){
         int arqNomeT=strlen(auxA->nomeArq)+1;
         fwrite(&arqNomeT, sizeof(int),1,dat);
         fwrite(&auxA->nomeArq,sizeof(char)*arqNomeT-1,1,dat);
@@ -228,20 +231,25 @@ void EscreverDat(Indice *ind){
     }
     
 	fwrite(&total, sizeof(int),1,dat);
-    Palavra* auxP = ind->Palavras;
-    while(auxP!=NULL){
+	Palavra* auxP = ind->Palavras;
+	while(auxP!=NULL){
     	int tamPlv=strlen(auxP->letras)+1;
     	fwrite(&tamPlv, sizeof(int),1,dat);
-    	fwrite(&auxP->letras,sizeof(char)*tamPlv-1,1,dat);
-    	fwrite("\0",sizeof(char),1,dat);
-    	Ocorrencia* auxO = auxP->ocorrencias;
-    	for(int i=0; i<auxP->qntOcorencias;i++){
-    			fwrite(&auxO->arquivo,sizeof(int),1,dat);
-    			fwrite(&auxO->qtdOcorrencias,sizeof(int),1,dat);
-    			for(int i=0;i,auxO->qtdOcorrencias;i++)
-    				fwrite(&auxO->linhas[i],sizeof(int),1,dat);
+		fwrite(&auxP->letras,sizeof(char)*tamPlv-1,1,dat);
+		fwrite("\0",sizeof(char),1,dat);
+		Ocorrencia* auxO = auxP->ocorrencias;
+		int i;
+		int j;
+		for(i=0;i<auxP->qntOcorencias;i++){
+    		fwrite(&auxO->arquivo,sizeof(int),1,dat);
+    		fwrite(&auxO->qtdOcorrencias,sizeof(int),1,dat);
+			for(j=0;j<auxO->qtdOcorrencias;j++)
+				fwrite(&auxO->linhas[i],sizeof(int),1,dat);
+			auxO=auxO->prox;
 		}
+		auxP=auxP->prox;
 	}
+	
 	fclose(dat);
 }
 
@@ -257,31 +265,27 @@ Indice* CriaIndice(){
 
 void LiberaMem(Indice* ind){
 	Arquivo* auxA=ind->arquivos;
-	while(ind->arquivos!=NULL){
-		auxA=ind->arquivos;
-		while(auxA->prox!=NULL){
-			auxA=auxA->prox;
-		}
+	Arquivo* auxA2;
+	while(auxA!=NULL){
+		auxA2 = auxA->prox;
 		free(auxA);
+		auxA=auxA2;
 	}
 	
 	Palavra* auxP=ind->Palavras;
+	Palavra* auxP2;
 	Ocorrencia* auxO;
-	
-	while(ind->Palavras!=NULL){
-		auxP=ind->Palavras;
-		while(auxP->prox!=NULL){
-			auxP=auxP->prox;
-		}
-		while(auxP->ocorrencias!=NULL){
-			auxO=auxP->ocorrencias;
-			while(auxO->prox!=NULL){
-				auxO=auxO->prox;
-			}
-			free(auxO->linhas);
+	Ocorrencia* auxO2;
+	while(auxP!=NULL){
+		auxP2=auxP->prox;
+		auxO=auxP->ocorrencias;
+		while(auxO!=NULL){
+			auxO2=auxO->prox;
 			free(auxO);
+			auxO=auxO2;
 		}
 		free(auxP);
+		auxP=auxP2;
 	}
 	free(ind);
 }
